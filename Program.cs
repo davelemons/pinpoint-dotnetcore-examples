@@ -13,7 +13,7 @@ namespace pinpoint_samples
             //for initial credential setup.  DO NOT include credentials in source code or project files!!!
             AmazonPinpointClient client = new AmazonPinpointClient();
 
-            var applicationId = "1aa20d5ade5c4699a5df45ddad370a10";
+            var applicationId = "[Project/Application ID found in Pinpoint AWS Console]";
 
             //UpsertEndpoint(s)
             var endpointAttributes = new Dictionary<string, List<string>>()
@@ -110,7 +110,7 @@ namespace pinpoint_samples
             segment.Name = "GroupC-Changed";
             UpdateSegmentRequest updateSegmentRequest = new UpdateSegmentRequest{
               ApplicationId = applicationId,
-              SegmentId = newSegmentId, //leave empty to create new one.
+              SegmentId = newSegmentId, 
               WriteSegmentRequest = segment
             };
 
