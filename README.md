@@ -1,5 +1,5 @@
 # pinpoint-dotnetcore-examples
-Several (very rough) examples of calling the Amazon pinpoint API to create Endpoints and Segments
+Several (very rough) examples of calling the Amazon pinpoint API to create Endpoints, Events, and Segments
 
 ## Prerequisites 
 - [Getting Started](https://docs.aws.amazon.com/sdk-for-net/v3/developer-guide/quick-start-s3-1-cross.html)
@@ -11,6 +11,7 @@ Several (very rough) examples of calling the Amazon pinpoint API to create Endpo
 ## Current API Calls
 - UpdateEndpointsBatch
 - GetEndpoint
+- WriteEvents
 - CreateSegment
 - UpdateSegment
 - GetSegment

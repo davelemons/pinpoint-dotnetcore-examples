@@ -13,9 +13,11 @@ namespace pinpoint_samples
             //for initial credential setup.  DO NOT include credentials in source code or project files!!!
             AmazonPinpointClient client = new AmazonPinpointClient();
 
-            var applicationId = "[Project/Application ID found in Pinpoint AWS Console]";
+            var applicationId = "[Put your Pinpoint App/Project ID Here]";
 
-            //UpsertEndpoint(s)
+            /*****************
+            * UpsertEndpoint(s)
+            ******************/
             var endpointAttributes = new Dictionary<string, List<string>>()
             {
               { "Groups", new List<string> { "GroupA", "GroupD" } },
@@ -54,7 +56,9 @@ namespace pinpoint_samples
             UpdateEndpointsBatchResponse updateEndpointBatchResponse = client.UpdateEndpointsBatchAsync(updateEndpointBatchRequest).Result;
             Console.WriteLine("Results: {0} - {1} - {2}", updateEndpointBatchResponse.HttpStatusCode, updateEndpointBatchResponse.MessageBody.Message, string.Join(Environment.NewLine, updateEndpointBatchResponse.ResponseMetadata.Metadata));
 
-            //GetEndpoint
+            /*****************
+            * GetEndpoint
+            ******************/
             GetEndpointRequest request = new GetEndpointRequest{
               ApplicationId = applicationId,
               EndpointId = "test@example.com"
@@ -64,7 +68,59 @@ namespace pinpoint_samples
             GetEndpointResponse response = client.GetEndpointAsync(request).Result;
             Console.WriteLine("Found: {0}", response.EndpointResponse.Address);
 
-            //Build Segment
+            /*****************
+            * WriteEvent(s)
+            ******************/
+            var eventAttributes = new Dictionary<string, string>()
+            {
+              { "OrderNumber", "123456"  },
+              { "OrderTotal", "123.45"  },
+            };
+
+            var events = new Dictionary<string, Amazon.Pinpoint.Model.Event>(){
+              {
+                "application_waycoolapplication",  //Not entirely sure where this is used as it doesn't appear in event
+                  new Amazon.Pinpoint.Model.Event {
+                    EventType = "purchase.confirmation",
+                    Timestamp = DateTime.UtcNow.ToString("o"),
+                    Attributes = eventAttributes
+                  }
+              }
+            };
+
+            PublicEndpoint eventEndpoint = new PublicEndpoint {
+              Address = "test@example.com",
+              Attributes = endpointAttributes,
+              ChannelType = "EMAIL",
+              User = user
+            };
+
+            EventsBatch eventsBatch = new EventsBatch{
+              Endpoint = eventEndpoint,
+              Events = events
+            };
+
+            var eventBatchItem = new Dictionary<string, EventsBatch>()
+            {
+              { applicationId, eventsBatch }
+            };
+
+            EventsRequest eventsRequest = new EventsRequest{
+              BatchItem = eventBatchItem
+            };
+
+            PutEventsRequest putEventsRequest = new PutEventsRequest{
+              ApplicationId = applicationId,
+              EventsRequest = eventsRequest
+            };
+
+            Console.WriteLine("Writing Event...");
+            PutEventsResponse putEventsResponse = client.PutEventsAsync(putEventsRequest).Result;
+            Console.WriteLine("Finished Writing Event: {0}", putEventsResponse.HttpStatusCode);
+
+            /*****************
+            * Build Segment
+            ******************/
             AttributeDimension ad = new AttributeDimension{
               AttributeType = AttributeType.INCLUSIVE,
               Values = new List<string>{"GroupC"}
@@ -94,7 +150,9 @@ namespace pinpoint_samples
               SegmentGroups = sgl
             };
 
-            //Create Segment
+            /*****************
+            * Create Segment
+            ******************/
             CreateSegmentRequest createSegmentRequest = new CreateSegmentRequest{
               ApplicationId = applicationId,
               WriteSegmentRequest = segment
@@ -106,7 +164,9 @@ namespace pinpoint_samples
 
             var newSegmentId = createSegmentResponse.SegmentResponse.Id;
 
-            //Update Segment
+            /*****************
+            * Update Segment
+            ******************/
             segment.Name = "GroupC-Changed";
             UpdateSegmentRequest updateSegmentRequest = new UpdateSegmentRequest{
               ApplicationId = applicationId,
@@ -118,7 +178,9 @@ namespace pinpoint_samples
             UpdateSegmentResponse updateSegmentResponse = client.UpdateSegmentAsync(updateSegmentRequest).Result;
             Console.WriteLine("Results: {0}", updateSegmentResponse.HttpStatusCode);
 
-            //GetSegment
+            /*****************
+            * Get Segment
+            ******************/
             GetSegmentRequest segmentRequest = new GetSegmentRequest{
               ApplicationId = applicationId,
               SegmentId = newSegmentId
